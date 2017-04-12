@@ -108,9 +108,19 @@ class NewPost(Handler):
 		'''
 
 class ViewPostHandler(Handler):
-	def get(self, id):
-		#pass #replace this with some code to handle the request
-		self.response.write(id)
+	def get(self, id):		
+		#self.response.write(id)
+		post = BlogPost.get_by_id( int(id) )  
+		
+		# if we can't find the post reject it
+		if not post:
+			self.renderError(400)
+			return
+
+		# render the premalink page
+		t = jinja_env.get_template("permalink.html")
+		content = t.render(post = post)
+		self.response.write(content)
 		
 app = webapp2.WSGIApplication([
 	('/', MainHandler),
