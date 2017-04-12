@@ -49,7 +49,10 @@ class Handler(webapp2.RequestHandler):
 		""" Sends an HTTP error code and a generic "oops!" message to the client. """
 
 		self.error(error_code)
-		self.response.write("Oops! Something went wrong.")
+		if (error_code == 404):
+			self.response.write(str(error_code) + ": The resource could not be found")
+		else:
+			self.response.write("Oops! Something went wrong.")
 		
 class MainHandler(Handler):
 	""" Handles requests coming in to '/' or '/blog' (the root of our site)
@@ -90,8 +93,8 @@ class NewPost(Handler):
 		if new_blog_title_escaped and new_blog_content_escaped:
 			blogpost = BlogPost(title = new_blog_title_escaped, content = new_blog_content_escaped)
 			blogpost.put()
-			self.redirect("/blog")
-			#self.redirect('/blog/%s' % str(blogpost.key().id()))
+			#self.redirect("/blog")
+			self.redirect('/blog/{0}'.format(str(blogpost.key().id())))
 		else:
 			error = "Title and content must be given before posting!"
 			#self.render("newpost.html", title = new_blog_title_escaped, content = new_blog_content_escaped, error=error)
@@ -114,7 +117,7 @@ class ViewPostHandler(Handler):
 		
 		# if we can't find the post reject it
 		if not post:
-			self.renderError(400)
+			self.renderError(404)
 			return
 
 		# render the premalink page
